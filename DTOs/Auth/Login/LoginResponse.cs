@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 
-namespace App1.DTOs.Login
+namespace App1.DTOs.Auth.Login
 {
     public class LoginResponse
     {

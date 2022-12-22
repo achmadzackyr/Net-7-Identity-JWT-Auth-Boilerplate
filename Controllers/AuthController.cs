@@ -1,4 +1,7 @@
-﻿using App1.DTOs.Login;
+﻿using App1.DTOs.Auth.Login;
+using App1.DTOs.Auth.Register;
+using Azure;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -24,19 +27,61 @@ namespace App1.Controllers
             _configuration = configuration;
         }
 
-        [HttpPost("Login")]
-        public async Task<ActionResult> Login(LoginRequest request)
+        [AllowAnonymous]
+        [HttpPost("register")]
+        public async Task<ActionResult> Register(RegisterRequest request)
         {
-            var response = new LoginResponse();
+            var user = new IdentityUser
+            {
+                Email = request.Username,
+                NormalizedEmail = request.Username.ToUpper(),
+                UserName = request.Username,
+                NormalizedUserName = request.Username.ToUpper()
+
+            };
+
+            var result = await _userManager.CreateAsync(user, request.Password);
+            if (!result.Succeeded)
+            {
+                return StatusCode(500, new RegisterResponse
+                {
+                    Success = false,
+                    Message = "Failed to create user",
+                    Data = null
+                });
+            }
+
+            var justCreatedUser = await _userManager.FindByEmailAsync(user.Email);
+            var roles = new List<string>
+                {
+                    "User"
+                };
+            
+            await _userManager.AddToRolesAsync(justCreatedUser, roles);
+
+            return Ok(new RegisterResponse
+            {
+                Success = true,
+                Message = "User successfully created",
+                Data = user
+            });
+        }
+
+
+        [AllowAnonymous]
+        [HttpPost("login")]
+        public async Task<ActionResult> login(LoginRequest request)
+        {
+            var response = new RegisterResponse();
             
             var userData = await _userManager.FindByEmailAsync(request.Username);
-            if (!userData.EmailConfirmed)
-            {
-                response.Message = "Email not confirmed yet";
-                response.Success = false;
-                response.Data = null;
-                return StatusCode(500, response);
-            }
+            //if (!userData.EmailConfirmed)
+            //{
+            //    response.Message = "Email not confirmed yet";
+            //    response.Success = false;
+            //    response.Data = null;
+            //    return StatusCode(500, response);
+            //}
             bool loginSuccess = await _userManager.CheckPasswordAsync(userData, request.Password);
             if (!loginSuccess)
             {
