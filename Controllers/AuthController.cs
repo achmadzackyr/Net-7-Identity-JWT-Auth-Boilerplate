@@ -75,6 +75,14 @@ namespace App1.Controllers
             var response = new RegisterResponse();
             
             var userData = await _userManager.FindByEmailAsync(request.Username);
+            if (userData == null)
+            {
+                response.Message = "User not found";
+                response.Success = false;
+                response.Data = null;
+                return StatusCode(404, response);
+            }
+
             //if (!userData.EmailConfirmed)
             //{
             //    response.Message = "Email not confirmed yet";
@@ -135,8 +143,6 @@ namespace App1.Controllers
             var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]));
 
             var token = new JwtSecurityToken(
-                //issuer: _configuration["JWT:ValidIssuer"],
-                //audience: _configuration["JWT:ValidAudience"],
                 expires: DateTime.Now.AddYears(1),
                 claims: authClaims,
                 signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256)

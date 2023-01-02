@@ -15,6 +15,7 @@ builder.Services.AddControllers();
 builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
 {
     options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+/";
+    options.User.RequireUniqueEmail = true;
 })
 .AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
 

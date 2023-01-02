@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using App1.DTOs.Role;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -30,6 +31,24 @@ namespace App1.Controllers
                 return BadRequest();
             }
             
+        }
+
+        [HttpGet("list")]
+        public ActionResult Get()
+        {
+            var response = new RoleResponse
+            {
+                Success = true,
+                Message = "Role list",
+                Data = _roleManager.Roles
+            };
+            return Ok(response);
+        }
+
+        // DELETE api/<RoleController>/5
+        [HttpDelete("{id}")]
+        public void Delete(int id)
+        {
         }
     }
 }
