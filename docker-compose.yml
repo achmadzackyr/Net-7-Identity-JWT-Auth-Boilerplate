@@ -1,0 +1,32 @@
+version: '3.4'
+
+networks:
+    app1docker:  
+
+services:
+  app1db:
+    container_name: app1-db
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    ports:
+      - 8002:1433
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=password@12345#
+    networks:
+      - app1docker
+  app1:
+    container_name: app1
+    image: ${DOCKER_REGISTRY-}app1
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 8001:80
+    depends_on:
+      - app1db
+    environment:
+      - DB_HOST=app1dbhost
+      - DB_NAME=App1Docker
+      - DB_SA_PASSWORD=password@12345#
+    networks:
+      - app1docker
